@@ -10,15 +10,33 @@ class Knight
     @position = position
   end
 
-  def knight_move(x_axis, y_axis)
-    valid_x = @position[0] + x_axis
-    valid_y = @position[1] + y_axis
-    print @position
-    return print 'Invalid move' if valid_x.negative? || valid_y.negative?
+  def knight_move(destination)
+    queue = []
+    moves = valid_moves
+    path = []
+    path << @position
+    pointer = @position
+    binding.pry
+    while pointer != destination
+      pointer = moves.map { |move| do_move(pointer, move) }
+    end
+    binding.pry
+  end
 
-    @position[0] = @position[0] + x_axis
-    @position[1] = @position[1] + y_axis
-    print @position
+  def knight_constant
+    [[2, 1], [-2, 1], [-2, -1], [2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
+  end
+
+  def valid_moves
+    possible_moves = knight_constant
+    try_move = possible_moves.map { |x, y| [x + @position[0], y + @position[1]] }
+    negative_index = []
+    try_move.each.with_index { |number, index| negative_index << index if number.any? { |num| num <= 0 } }
+    possible_moves.reject.with_index { |_, index| negative_index.include?(index) }
+  end
+
+  def do_move(starting_position, ending_position)
+    starting_position.zip(ending_position).map { |a, b| a + b }
   end
 end
 
@@ -45,4 +63,4 @@ end
 
 board = Chessboard.new
 knight = board.create_knight(1, 1)
-knight.knight_move(-2, 1)
+print knight.knight_move([2, 3])
