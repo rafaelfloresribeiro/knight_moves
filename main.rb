@@ -11,22 +11,22 @@ class Knight
   end
 
   def knight_move(destination)
-    queue = [@position]
-    path = []
-    path << @position
-    pointer = @position
-    path_found = false
-    until path_found
-      moves = valid_moves(pointer)
-      moves.map do |move|
-        try_path = do_move(pointer, move)
-        path << try_path if destination == try_path
-        path_found = true if destination == try_path
+    queue = [@position, @position]
+    visited_path = [@position]
+    until queue.empty?
+      pointer = queue.shift
+      last_square = pointer.flatten.length > 2 ? pointer.last : pointer
+      moves = valid_moves(last_square)
+      move_list = moves.map { |move| do_move(pointer, move) }
+      move_list.each do |move|
+        visited_path = [pointer, move]
+        return visited_path.flatten.zip.each_slice(2).to_a.map { |pair| pair.flatten } if move == destination
+
+        test_array = [pointer, move]
+        queue << test_array
       end
-      path << pointer
-      pointer = do_move(pointer, moves.sample)
     end
-    path
+    visited_path
   end
 
   def knight_constant
@@ -41,7 +41,8 @@ class Knight
     possible_moves.reject.with_index { |_, index| negative_index.include?(index) }
   end
 
-  def do_move(starting_position, move)
+  def do_move(move_list, move)
+    starting_position = move_list.flatten.length > 2 ? move_list.last : move_list
     starting_position.zip(move).map { |a, b| a + b }
   end
 end
@@ -69,4 +70,4 @@ end
 
 board = Chessboard.new
 knight = board.create_knight(1, 1)
-print knight.knight_move([7, 7])
+print knight.knight_move([7, 8])
